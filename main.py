@@ -1,5 +1,11 @@
 import os
 import json
+import log_system
+from story_functions.tutorial import tutorial
+
+
+Logger = log_system.Logger()
+Logger.start_log()
 
 
 def start_game():
@@ -31,12 +37,15 @@ def new_game():
     else:
         player_data = {
             'name': name,
-            'level': 1,
-            'score': 0
+            'game_level': 0,
+            'coins': 10,
+            'character_level': 1,
+            'xp': 0
         }
         with open(filename, 'w') as file:
             json.dump(player_data, file)
         print(f"New Game created for {name}!")
+        Logger.log(prefix="Account System", message=f"Account {name} has been created.")
         game_loop(player_data)
 
 
@@ -47,14 +56,36 @@ def continue_game():
         with open(filename, 'r') as file:
             player_data = json.load(file)
         print(f"Welcome Back, {name}!")
+        Logger.log(prefix="Account System", message=f"Account {name} has been loaded.")
         game_loop(player_data)
     else:
         print(f"No Player with the name '{name}' found.")
         start_game()
 
 
+def save_game(player_data):
+    filename = f'user/{player_data["name"]}.json'
+    with open(filename, 'w') as file:
+        json.dump(player_data, file)
+    Logger.log(prefix="Account System", message=f"Account {player_data['name']} has been saved.")
+    print(f"The game for {player_data['name']} has been saved.")
+
+
 def game_loop(player_data):
-    print(player_data)
+    if player_data['game_level'] == 0:
+        tutorial(player_data)
+        Logger.log_info(f"Player {player_data['name']} has finish the tutorial")
+        player_data['game_level'] = 1
+    else:
+        print(f"Game is running for {player_data['name']}. Your current coins: {player_data['coins']}. Your current Level: {player_data['character_level']}. Your current XP: {player_data['xp']}.")
+
+    while True:
+        action = input("Enter your action (exit to quit): ").strip().lower()
+        if action == 'exit':
+            save_game(player_data)
+            break
+        elif action == 'help':
+            print("Actions: exit, help")
 
 
 if __name__ == "__main__":
