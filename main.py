@@ -29,6 +29,7 @@ def start_game():
 
 
 def new_game():
+    print("To Crate a new Game, please enter your Player Name.")
     name = input("Enter your Player Name: ").strip()
     filename = f'user/{name}.json'
     if os.path.exists(filename):
@@ -50,6 +51,7 @@ def new_game():
 
 
 def continue_game():
+    print("To continue your Game, please enter your Player Name.")
     name = input("Enter your Player Name: ").strip()
     filename = f'user/{name}.json'
     if os.path.exists(filename):
@@ -76,11 +78,12 @@ def game_loop(player_data):
         tutorial(player_data)
         Logger.log_info(f"Player {player_data['name']} has finish the tutorial")
         player_data['game_level'] = 1
+        save_game(player_data)
     else:
         print(f"Game is running for {player_data['name']}. Your current coins: {player_data['coins']}. Your current Level: {player_data['character_level']}. Your current XP: {player_data['xp']}.")
 
     while True:
-        action = input("Enter your action (exit to quit): ").strip().lower()
+        action = input("Enter your action: ").strip().lower()
         if action == 'exit':
             save_game(player_data)
             break
