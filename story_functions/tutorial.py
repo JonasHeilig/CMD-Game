@@ -84,6 +84,8 @@ def tutorial(player_data):
                     print("Great! You chopped some wood.")
                     time.sleep(5)
                     print("You have completed the tutorial!")
+                    time.sleep(5)
+                    print("As a reward, you receive 10 wood, 4 stone, and 1 iron.")
                     break
                 elif action == 'help':
                     print("Type 'chop' to chop wood.")
