@@ -2,7 +2,7 @@ import os
 import json
 import log_system
 from story_functions.tutorial import tutorial
-
+import random
 
 Logger = log_system.Logger()
 Logger.start_log()
@@ -73,6 +73,38 @@ def continue_game():
         start_game()
 
 
+def game_loop(player_data):
+    if player_data['game_level'] == 0:
+        tutorial(player_data)
+        Logger.log_info(f"Player {player_data['name']} has finished the tutorial")
+        player_data['game_level'] = 1
+        player_data['inventory']['wood'] += 10
+        player_data['inventory']['stone'] += 4
+        player_data['inventory']['iron'] += 1
+        print("You received 10 wood, 4 stone, and 1 iron for completing the tutorial!")
+        Logger.log_info(f"{player_data['name']} received 10 wood, 4 stone, and 1 iron for completing the tutorial.")
+        save_game(player_data)
+    else:
+        print(
+            f"Game is running for {player_data['name']}. Your current coins: {player_data['coins']}. Your current Level: {player_data['character_level']}. Your current XP: {player_data['xp']}.")
+
+    while True:
+        action = input("Enter your action: ").strip().lower()
+        if action == 'exit':
+            save_game(player_data)
+            break
+        elif action == 'help':
+            print("Actions: mine, chop, exit, inventory, help")
+        elif action == 'mine':
+            mine(player_data)
+        elif action == 'chop':
+            chop_wood(player_data)
+        elif action == 'inventory':
+            print_inventory(player_data)
+        else:
+            print("Unknown action! Type 'help' for a list of available actions.")
+
+
 def save_game(player_data):
     filename = f'user/{player_data["name"]}.json'
     with open(filename, 'w') as file:
@@ -81,51 +113,33 @@ def save_game(player_data):
     print(f"The game for {player_data['name']} has been saved.")
 
 
-def game_loop(player_data):
-    if player_data['game_level'] == 0:
-        tutorial(player_data)
-        Logger.log_info(f"Player {player_data['name']} has finished the tutorial")
-        player_data['game_level'] = 1
-        save_game(player_data)
-    else:
-        print(f"Game is running for {player_data['name']}. Your current coins: {player_data['coins']}. Your current Level: {player_data['character_level']}. Your current XP: {player_data['xp']}.")
-
-    while True:
-        action = input("Enter your action: ").strip().lower()
-        if action == 'exit':
-            save_game(player_data)
-            break
-        elif action == 'help':
-            print("Actions: mine, chop, exit, help")
-        elif action == 'mine':
-            mine(player_data)
-        elif action == 'chop':
-            chop_wood(player_data)
-        else:
-            print("Unknown action! Type 'help' for a list of available actions.")
-
-
 def mine(player_data):
-    import random
-    ores = {
-        'stone': 0.5,
-        'coal': 0.3,
-        'iron': 0.1,
-        'gold': 0.05,
-        'diamond': 0.05
-    }
+    with open('settings.json', 'r') as file:
+        settings = json.load(file)
+    ores = settings["ores"]
     ore = random.choices(list(ores.keys()), list(ores.values()))[0]
     player_data['inventory'][ore] += 1
+    Logger.log_info(f"{player_data['name']} mined {ore}. Current {ore} count: {player_data['inventory'][ore]}.")
     print(f"You mined some {ore}. You now have {player_data['inventory'][ore]} {ore}(s).")
-    save_game(player_data)
 
 
 def chop_wood(player_data):
-    import random
-    wood_amount = random.randint(1, 5)
+    with open('settings.json', 'r') as file:
+        settings = json.load(file)
+    trees = settings["trees"]
+    tree = random.choices(list(trees.keys()), [trees[t]["probability"] for t in trees])[0]
+    wood_amount = trees[tree]["wood_amount"]
     player_data['inventory']['wood'] += wood_amount
-    print(f"You chopped down a tree and got {wood_amount} wood. You now have {player_data['inventory']['wood']} wood.")
-    save_game(player_data)
+    Logger.log_info(
+        f"{player_data['name']} chopped down a {tree} tree and got {wood_amount} wood. Current wood count: {player_data['inventory']['wood']}.")
+    print(
+        f"You chopped down a {tree} tree and got {wood_amount} wood. You now have {player_data['inventory']['wood']} wood.")
+
+
+def print_inventory(player_data):
+    print("Inventory:")
+    for item, amount in player_data['inventory'].items():
+        print(f"{item.capitalize()}: {amount}")
 
 
 if __name__ == "__main__":
