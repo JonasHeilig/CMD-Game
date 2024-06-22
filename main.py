@@ -29,11 +29,11 @@ def start_game():
 
 
 def new_game():
-    print("To Crate a new Game, please enter your Player Name.")
+    print("To Create a new Game, please enter your Player Name.")
     name = input("Enter your Player Name: ").strip()
     filename = f'user/{name}.json'
     if os.path.exists(filename):
-        print(f"A Player with the name '{name}' already exist. Take an other name.")
+        print(f"A Player with the name '{name}' already exists. Choose another name.")
         new_game()
     else:
         player_data = {
@@ -41,7 +41,15 @@ def new_game():
             'game_level': 0,
             'coins': 10,
             'character_level': 1,
-            'xp': 0
+            'xp': 0,
+            'inventory': {
+                'wood': 0,
+                'stone': 0,
+                'coal': 0,
+                'iron': 0,
+                'gold': 0,
+                'diamond': 0
+            }
         }
         with open(filename, 'w') as file:
             json.dump(player_data, file)
@@ -76,7 +84,7 @@ def save_game(player_data):
 def game_loop(player_data):
     if player_data['game_level'] == 0:
         tutorial(player_data)
-        Logger.log_info(f"Player {player_data['name']} has finish the tutorial")
+        Logger.log_info(f"Player {player_data['name']} has finished the tutorial")
         player_data['game_level'] = 1
         save_game(player_data)
     else:
@@ -88,7 +96,36 @@ def game_loop(player_data):
             save_game(player_data)
             break
         elif action == 'help':
-            print("Actions: exit, help")
+            print("Actions: mine, chop, exit, help")
+        elif action == 'mine':
+            mine(player_data)
+        elif action == 'chop':
+            chop_wood(player_data)
+        else:
+            print("Unknown action! Type 'help' for a list of available actions.")
+
+
+def mine(player_data):
+    import random
+    ores = {
+        'stone': 0.5,
+        'coal': 0.3,
+        'iron': 0.1,
+        'gold': 0.05,
+        'diamond': 0.05
+    }
+    ore = random.choices(list(ores.keys()), list(ores.values()))[0]
+    player_data['inventory'][ore] += 1
+    print(f"You mined some {ore}. You now have {player_data['inventory'][ore]} {ore}(s).")
+    save_game(player_data)
+
+
+def chop_wood(player_data):
+    import random
+    wood_amount = random.randint(1, 5)
+    player_data['inventory']['wood'] += wood_amount
+    print(f"You chopped down a tree and got {wood_amount} wood. You now have {player_data['inventory']['wood']} wood.")
+    save_game(player_data)
 
 
 if __name__ == "__main__":

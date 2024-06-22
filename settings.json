@@ -1,0 +1,23 @@
+{
+    "ores": {
+        "stone": 0.5,
+        "coal": 0.3,
+        "iron": 0.1,
+        "gold": 0.05,
+        "diamond": 0.05
+    },
+    "trees": {
+        "small": {
+            "probability": 0.5,
+            "wood_amount": 1
+        },
+        "medium": {
+            "probability": 0.3,
+            "wood_amount": 3
+        },
+        "large": {
+            "probability": 0.2,
+            "wood_amount": 5
+        }
+    }
+}
